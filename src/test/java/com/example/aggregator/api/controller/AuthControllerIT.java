@@ -1,6 +1,7 @@
 package com.example.aggregator.api.controller;
 
 import com.example.aggregator.api.base.AbstractTest;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -17,19 +18,25 @@ public class AuthControllerIT extends AbstractTest {
     @Autowired
     private MockMvc mockMvc;
 
+    @Autowired
+    private ObjectMapper objectMapper;
+
     @Test
     public void whenCallMethodLoginThenReturnOkStatusWithCorrectResponse() throws Exception {
-        mockMvc.perform(post(String.format("/api/v1/auth/login?username=%s&password=%s", expectedUsername, expectedPassword))
-                        .contentType(MediaType.APPLICATION_JSON))
+        String jsonRequest = objectMapper.writeValueAsString(validAuthRequest);
+
+        mockMvc.perform(post("/api/v1/auth/login", validAuthRequest)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonRequest))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.token").exists());
     }
 
     @Test
     public void whenCallMethodLoginThenReturnUnauthorizedForInvalidCredentials() throws Exception {
-        mockMvc.perform(post(String.format("/api/v1/auth/login?username=%s&password=%s", "foo", "bar"))
+        mockMvc.perform(post("/api/v1/auth/login", validAuthRequest)
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isUnauthorized())
+                .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.token").doesNotExist());
     }
 

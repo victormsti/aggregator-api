@@ -10,13 +10,13 @@ import java.util.Collections;
 
 public class ContactBuilder {
 
-    public static final ContactBaseResponse buildContactBaseResponse(){
+    public static ContactBaseResponse buildContactBaseResponse(){
         return ContactBaseResponse.builder()
                 .contacts(Collections.singletonList(buildContactResponse()))
                 .build();
     }
 
-    public static final ContactResponse buildContactResponse(){
+    public static ContactResponse buildContactResponse(){
         return ContactResponse.builder()
                 .id(1)
                 .email("test@test.com")
@@ -24,19 +24,19 @@ public class ContactBuilder {
                 .created_at(LocalDateTime.now()).build();
     }
 
-    public static final ContactIntegrationBaseResponse buildEmptyContactIntegrationBaseResponse(){
+    public static ContactIntegrationBaseResponse buildEmptyContactIntegrationBaseResponse(){
         return ContactIntegrationBaseResponse.builder()
                 .contacts(Collections.emptyList())
                 .build();
     }
 
-    public static final ContactIntegrationBaseResponse buildContactIntegrationBaseResponse(){
+    public static ContactIntegrationBaseResponse buildContactIntegrationBaseResponse(){
         return ContactIntegrationBaseResponse.builder()
                 .contacts(Collections.singletonList(buildContactIntegrationResponse()))
                 .build();
     }
 
-    public static final ContactIntegrationResponse buildContactIntegrationResponse(){
+    public static ContactIntegrationResponse buildContactIntegrationResponse(){
         return ContactIntegrationResponse.builder()
                 .id(1)
                 .email("test@test.com")
