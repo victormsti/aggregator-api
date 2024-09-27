@@ -1,0 +1,9 @@
+app:
+  user:
+    username: "bestuser"
+    password: "bestpassword"
+  secret: "c510b59e0cec7bab5b50d0aad5d494a4d903da258b3c950c86a2dc0c42316321"
+feign:
+  kenect-labs:
+    url: "https://k-messages-api.herokuapp.com/api/v1"
+    token: "Bearer J7ybt6jv6pdJ4gyQP9gNonsY"
