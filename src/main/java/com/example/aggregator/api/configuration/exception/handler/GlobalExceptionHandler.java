@@ -2,13 +2,22 @@ package com.example.aggregator.api.configuration.exception.handler;
 
 import com.example.aggregator.api.configuration.exception.NotFoundException;
 import com.example.aggregator.api.configuration.exception.RestException;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
@@ -52,5 +61,47 @@ public class GlobalExceptionHandler {
             status = ex.getStatus().value();
             message = ex.getMessage();
         }
+    }
+
+    @ExceptionHandler({MethodArgumentNotValidException.class})
+    public ResponseEntity<ValidationMessage> handleMethodArgumentNotValid(MethodArgumentNotValidException ex) {
+        List<String> errors = new ArrayList<>();
+        ValidationMessage validationMessage = new ValidationMessage(ex);
+        validationMessage.fields.forEach(f->{
+            errors.add(f.message);
+        });
+
+        return new ResponseEntity(errors, HttpStatus.BAD_REQUEST);
+    }
+
+    @Data
+    @EqualsAndHashCode(callSuper = false)
+    private static class ValidationMessage extends ErrorMessageResponse {
+        private List<FieldMessage> fields;
+
+        ValidationMessage(MethodArgumentNotValidException ex) {
+            this.setStatus(HttpStatus.BAD_REQUEST.value());
+            this.setMessage("VALIDATION_ERROR");
+
+            this.fields = new ArrayList<>();
+            for (FieldError error : ex.getBindingResult().getFieldErrors()) {
+
+                addField(error.getField(), error.getDefaultMessage(), error.getObjectName());
+            }
+        }
+
+        private void addField(String field, String message, String objectName) {
+            FieldMessage fieldMessage = new FieldMessage(field, message, objectName);
+            this.fields.add(fieldMessage);
+        }
+    }
+
+    @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
+    private static class FieldMessage {
+        private String field;
+        private String message;
+        private String objectName;
     }
 }
