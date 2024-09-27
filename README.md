@@ -15,6 +15,40 @@ This project implements an API aggregator service that connects to the Kenect La
 - Maven
 - An internet connection to access the external API
 
+### Building the app
+- Run the following command:
+  - ```mvn clean package```
+
+- If you are using the Maven wrapper, you can run:
+  - ```./mvnw clean package```
+
+This command will:
+
+- Clean the project (remove previously compiled files)
+- Compile the source code
+- Run the tests
+- Package the application into a JAR file, which will be placed in the `target` directory.
+
+### Running tests
+
+This project has unit and integration tests
+
+To run all tests, use the following command:
+- ```mvn test```
+
+
+- If you are using the Maven wrapper, you can run:
+  - ```./mvnw test```
+
+
+- To run a specific test class, you can use the following command:
+  - ```mvn -Dtest=YourTestClassName.java test```
+
+
+- If you are using the Maven wrapper, you can run:
+  - ```./mvnw -Dtest=YourTestClassName.java test```
+
+
 ### Running the App via IDE
 To run the application locally, you need to set up the **local** profile. 
 
