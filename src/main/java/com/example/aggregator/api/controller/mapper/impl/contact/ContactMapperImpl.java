@@ -11,6 +11,8 @@ import java.util.stream.Collectors;
 
 @Service
 public class ContactMapperImpl implements ContactMapper {
+    public static final String KINECT_LABS_SOURCE = "KINECT_LABS";
+
     @Override
     public ContactBaseResponse toResponse(List<ContactIntegrationResponse> response) {
         List<ContactResponse> contacts = response.stream()
@@ -28,6 +30,7 @@ public class ContactMapperImpl implements ContactMapper {
                 .id(response.getId())
                 .name(response.getName())
                 .email(response.getEmail())
+                .source(KINECT_LABS_SOURCE)
                 .created_at(response.getCreated_at())
                 .updated_at(response.getUpdated_at())
                 .build();
