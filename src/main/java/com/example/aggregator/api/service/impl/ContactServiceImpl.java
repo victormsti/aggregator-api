@@ -8,6 +8,7 @@ import com.example.aggregator.api.controller.response.contact.ContactBaseRespons
 import com.example.aggregator.api.controller.response.contact.ContactResponse;
 import com.example.aggregator.api.service.contract.ContactService;
 import feign.FeignException.InternalServerError;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -15,13 +16,11 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@Slf4j
 public class ContactServiceImpl implements ContactService {
 
     private final KenectLabsClient client;
     private final ContactMapper contactMapper;
-
-    private final int MAX_PAGES = 100;
-
 
     public ContactServiceImpl(KenectLabsClient client,
                               ContactMapper contactMapper) {
@@ -33,13 +32,22 @@ public class ContactServiceImpl implements ContactService {
     public ContactBaseResponse getContacts() {
         List<ContactIntegrationResponse> totalContacts = new ArrayList<>();
         int currentPage = 1;
+        boolean hasMoreData = true;
 
-        while (currentPage <= MAX_PAGES) {
+        while (hasMoreData) {
             try {
-                totalContacts.addAll(client.getContacts(currentPage).getContacts());
+                List<ContactIntegrationResponse> response = client.getContacts(currentPage).getContacts();
+                if (response.isEmpty()) {
+                    hasMoreData = false;
+                    continue;
+                }
+
+                totalContacts.addAll(response);
                 currentPage++;
             } catch (InternalServerError ex) {
                 return contactMapper.toResponse(totalContacts);
+            } catch (Exception ex){
+                log.error("An error occurred: {}: {}", currentPage, ex.getMessage());
             }
         }
         return contactMapper.toResponse(totalContacts);
@@ -48,13 +56,15 @@ public class ContactServiceImpl implements ContactService {
     @Override
     public ContactResponse getContactById(Integer id) {
         int currentPage = 1;
+        boolean hasMoreData = true;
 
-        while (currentPage <= MAX_PAGES) {
+        while (hasMoreData) {
             try {
                 List<ContactIntegrationResponse> contacts = client.getContacts(currentPage).getContacts();
 
                 if (contacts.isEmpty()) {
-                    break;
+                    hasMoreData = false;
+                    continue;
                 }
 
                 Optional<ContactIntegrationResponse> contactOptional = contacts.stream()
@@ -68,6 +78,8 @@ public class ContactServiceImpl implements ContactService {
                 currentPage++;
             } catch (InternalServerError ex) {
                 throw new NotFoundException(String.format("Contact not found by id: %s", id));
+            } catch (Exception ex){
+                log.error("An error occurred: {}: {}", currentPage, ex.getMessage());
             }
         }
         throw new NotFoundException(String.format("Contact not found by id: %s", id));
